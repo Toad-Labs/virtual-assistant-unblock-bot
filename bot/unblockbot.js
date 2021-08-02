@@ -1,5 +1,6 @@
 const { ActivityHandler, MessageFactory, ActivityTypes } = require('botbuilder');
 const { WaterfallDialog, WaterfallStepContext, ChoicePrompt, TextPrompt, DialogTurnStatus} = require('botbuilder-dialogs');
+const { MainDialog } = require('../dialogs/unblockbot/mainDialog');
 
 class UnblockBot extends ActivityHandler {
     constructor(conversationState, dialogSet) {
@@ -8,9 +9,11 @@ class UnblockBot extends ActivityHandler {
         if (!conversationState) throw new Error('[DialogBot]: Missing parameter. conversationState is required');
         if (!dialogSet) throw new Error('[DialogBot]: Missing parameter. dialogSet is required');
 
+        // Initialise private members for the bot
         this.conversationState = conversationState;
         this.dialogSet = dialogSet;
 
+        // Add the main dialog to the dialog set for the bot
         this.addDialogs();
         
         // See https://aka.ms/about-bot-activity-message to learn more about the message and other activity types.
@@ -22,7 +25,9 @@ class UnblockBot extends ActivityHandler {
             // Try to continue executing an active multi-turn dialog
             const result = await dc.continueDialog();
 
-            // Send greeting if no other dialogs active
+            // If we want to rerun the dialog after it has finished we would uncomment the following
+            // for now - once the main dialog has run the bot just ignores all incoming messages
+            // TODO: is that really the behaviour we want though?
             /*
             if (result.status == DialogTurnStatus.empty && dc.context.activity.type == ActivityTypes.Message) {
                 await dc.beginDialog('help');
@@ -35,6 +40,8 @@ class UnblockBot extends ActivityHandler {
 
         });
 
+        // This function runs when a new member is added to the 
+        // converation with the bot 
         this.onMembersAdded(async (context, next) => {
             const membersAdded = context.activity.membersAdded;
             
@@ -50,7 +57,7 @@ class UnblockBot extends ActivityHandler {
                     const dc = await this.dialogSet.createContext(context);
 
                     // Begin the dialog
-                    await dc.beginDialog('help');
+                    await dc.beginDialog('MAIN_DIALOG');
 
                 }
             }
@@ -63,6 +70,12 @@ class UnblockBot extends ActivityHandler {
 
     addDialogs = function () { 
 
+        var mainDialog = new MainDialog();
+
+        this.dialogSet.add(mainDialog);
+
+
+        /*
         this.dialogSet.add(new WaterfallDialog('help',[
             async (step) => { 
                 const choices = ['yes', 'no'];
@@ -88,6 +101,9 @@ class UnblockBot extends ActivityHandler {
             }
         ]));
         this.dialogSet.add(new ChoicePrompt("choicePrompt"));
+        */
+
+
 
     }
 
