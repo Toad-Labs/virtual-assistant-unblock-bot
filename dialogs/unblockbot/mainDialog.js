@@ -1,7 +1,20 @@
 // Copyright (c) Team Toad. All rights reserved.
 // Licensed under the MIT License.
 
-const { ComponentDialog, ChoiceFactory, ChoicePrompt, DialogSet, DialogTurnStatus, WaterfallDialog } = require('botbuilder-dialogs');
+const { 
+    ComponentDialog, 
+    ChoiceFactory, 
+    ChoicePrompt, 
+    DialogSet, 
+    DialogTurnStatus, 
+    WaterfallDialog, 
+} = require('botbuilder-dialogs');
+
+const { 
+    UnblockBotDialog, 
+    UNBLOCK_BOT_DIALOG, 
+} = require('./unblockBotDialog');
+
 
 // The String ID name for the main dialog
 const MAIN_DIALOG = 'MAIN_DIALOG';
@@ -13,34 +26,16 @@ class MainDialog extends ComponentDialog {
     constructor() {
         super(MAIN_DIALOG);
 
-        this.addDialog(new WaterfallDialog(MAIN_WATERFALL_DIALOG,[
-            async (step) => { 
-                const choices = ['yes', 'no'];
-                const options = { 
-                    prompt: "What is it from Main Dailog?",
-                    choices,
-                };
-                return await step.prompt("choicePrompt", options);
-            },
-            async (step) => { 
-                switch (step.result.index) {
-                    case 0: 
-                        await step.context.sendActivity("You picked yes!");
-                    break;
-                    case 1: 
-                        await step.context.sendActivity("You picked no!");
-                    break; 
-                    default: 
-                        await step.context.sendActivity("I don't know what you picked");
-                    break;
-                }
-                return await step.endDialog();
-            }
-        ]));
-        this.addDialog(new ChoicePrompt("choicePrompt"));
+        // Add the unblockbot dialog to the dialog 
+        this.addDialog(new UnblockBotDialog());
 
+        this.addDialog(new WaterfallDialog(MAIN_WATERFALL_DIALOG, [
+            this.initialStep.bind(this),
+            this.finalStep.bind(this)
+        ]));
 
         this.initialDialogId = MAIN_WATERFALL_DIALOG;
+        
     }
 
     /**
@@ -58,6 +53,22 @@ class MainDialog extends ComponentDialog {
         if (results.status === DialogTurnStatus.empty) {
             await dialogContext.beginDialog(this.id);
         }
+    }
+
+    /**
+     * Initial step in the waterfall. This will kick of the unblockbot dialog
+     */
+    async initialStep(stepContext) {
+        return await stepContext.beginDialog(UNBLOCK_BOT_DIALOG);
+    }
+
+    /**
+     * This is the final step in the main waterfall dialog.
+     */
+    async finalStep(stepContext) {
+        await stepContext.context.sendActivity('Ok, have a great day!');
+        // WaterfallStep always finishes with the end of the Waterfall or with another dialog; here it is the end.
+        return await stepContext.endDialog();
     }
 
 }
