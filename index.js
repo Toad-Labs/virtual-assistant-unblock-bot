@@ -16,7 +16,7 @@ const { BotFrameworkAdapter, ConversationState, MemoryStorage } = require('botbu
 const { DialogSet } = require('botbuilder-dialogs');
 
 // This bot's main dialog.
-const { UnblockBot } = require('./bot/unblockbot');
+const { VirtualAssistantBot } = require('./bot/virtualAssistantBot');
 
 // Create HTTP server
 const server = restify.createServer();
@@ -69,7 +69,7 @@ const conversationState = new ConversationState(memoryStorage);
 const dialogs = new DialogSet(conversationState.createProperty('DialogState'));
 
 // Create the main dialog.
-const myUnblockBot = new UnblockBot(
+const myVirtualAssistantBot = new VirtualAssistantBot(
     conversationState,
     dialogs
 );
@@ -78,7 +78,7 @@ const myUnblockBot = new UnblockBot(
 server.post('/api/messages', (req, res) => {
     adapter.processActivity(req, res, async (context) => {
         // Route to main dialog.
-        await myUnblockBot.run(context);
+        await myVirtualAssistantBot.run(context);
     });
 });
 

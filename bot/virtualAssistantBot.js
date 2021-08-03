@@ -2,7 +2,7 @@ const { ActivityHandler, MessageFactory, ActivityTypes } = require('botbuilder')
 const { WaterfallDialog, WaterfallStepContext, ChoicePrompt, TextPrompt, DialogTurnStatus} = require('botbuilder-dialogs');
 const { MainDialog } = require('../dialogs/unblockbot/mainDialog');
 
-class UnblockBot extends ActivityHandler {
+class VirtualAssistantBot extends ActivityHandler {
     constructor(conversationState, dialogSet) {
         super();
 
@@ -118,4 +118,4 @@ class UnblockBot extends ActivityHandler {
     }
 }
 
-module.exports.UnblockBot = UnblockBot;
+module.exports.VirtualAssistantBot = VirtualAssistantBot;
