@@ -4,6 +4,7 @@ const path = require('path');
 
 const dotenv = require('dotenv');
 
+// Read environment variables from .env file
 // Import required bot configuration.
 const ENV_FILE = path.join(__dirname, '.env');
 dotenv.config({ path: ENV_FILE });
@@ -12,7 +13,7 @@ const restify = require('restify');
 
 // Import required bot services.
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
-const { BotFrameworkAdapter, ConversationState, MemoryStorage } = require('botbuilder');
+const { BotFrameworkAdapter, ConversationState, MemoryStorage, UserState } = require('botbuilder');
 const { DialogSet } = require('botbuilder-dialogs');
 
 // This bot's main dialog.
@@ -68,10 +69,14 @@ const conversationState = new ConversationState(memoryStorage);
 // Create the Dialog State for the bot 
 const dialogs = new DialogSet(conversationState.createProperty('DialogState'));
 
+// Create the User State for the bot 
+const userState = new UserState(memoryStorage);
+
 // Create the main dialog.
 const myVirtualAssistantBot = new VirtualAssistantBot(
     conversationState,
-    dialogs
+    userState,
+    dialogs,
 );
 
 // Listen for incoming requests.

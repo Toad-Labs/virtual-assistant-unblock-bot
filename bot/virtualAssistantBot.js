@@ -1,16 +1,18 @@
-const { ActivityHandler, MessageFactory, ActivityTypes } = require('botbuilder');
+const { ActivityHandler, MessageFactory, UserState, ActivityTypes } = require('botbuilder');
 const { WaterfallDialog, WaterfallStepContext, ChoicePrompt, TextPrompt, DialogTurnStatus} = require('botbuilder-dialogs');
 const { MainDialog } = require('../dialogs/unblockbot/mainDialog');
 
 class VirtualAssistantBot extends ActivityHandler {
-    constructor(conversationState, dialogSet) {
+    constructor(conversationState, userState, dialogSet) {
         super();
 
         if (!conversationState) throw new Error('[DialogBot]: Missing parameter. conversationState is required');
+        if (!userState) throw new Error('[DialogBot]: Missing parameter. userState is required');
         if (!dialogSet) throw new Error('[DialogBot]: Missing parameter. dialogSet is required');
 
         // Initialise private members for the bot
         this.conversationState = conversationState;
+        this.userState = userState;
         this.dialogSet = dialogSet;
 
         // Add the main dialog to the dialog set for the bot
@@ -114,6 +116,7 @@ class VirtualAssistantBot extends ActivityHandler {
         await super.run(context);
 
         // Save any state changes. The load happened during the execution of the Dialog.
+        await this.userState.saveChanges(context, false);
         await this.conversationState.saveChanges(context, false);
     }
 }

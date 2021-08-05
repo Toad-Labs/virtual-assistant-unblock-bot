@@ -15,6 +15,7 @@ const {
     UNBLOCK_BOT_DIALOG, 
 } = require('./unblockBotDialog');
 
+const { UnblockBotDetails } = require('./unblockBotDetails');
 
 // The String ID name for the main dialog
 const MAIN_DIALOG = 'MAIN_DIALOG';
@@ -59,13 +60,19 @@ class MainDialog extends ComponentDialog {
      * Initial step in the waterfall. This will kick of the unblockbot dialog
      */
     async initialStep(stepContext) {
-        return await stepContext.beginDialog(UNBLOCK_BOT_DIALOG);
+        const unblockBotDetails = new UnblockBotDetails();
+        return await stepContext.beginDialog(UNBLOCK_BOT_DIALOG, unblockBotDetails);
     }
 
     /**
      * This is the final step in the main waterfall dialog.
      */
     async finalStep(stepContext) {
+
+        const unblockBotDetails = stepContext.result;
+
+        console.log('UnblockBot Details After:', unblockBotDetails);
+
         await stepContext.context.sendActivity('Ok, have a great day!');
         // WaterfallStep always finishes with the end of the Waterfall or with another dialog; here it is the end.
         return await stepContext.endDialog();
